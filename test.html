@@ -2,22 +2,18 @@
 <html>
 <body>
 
-<button onclick="speak()">Speak</button>
+<button onclick="test()">
+Test
+</button>
 
 <script>
-function speak(){
-    alert("clicked");
+function test(){
 
-    let u =
-    new SpeechSynthesisUtterance(
-        "Hello world"
+    alert(
+        speechSynthesis.getVoices().length
     );
 
-    u.lang="en-US";
-
-    speechSynthesis.speak(u);
 }
 </script>
 
 </body>
-</html>
