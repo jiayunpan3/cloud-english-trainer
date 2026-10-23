@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<button onclick="speak()">Speak</button>
+
+<script>
+function speak(){
+    alert("clicked");
+
+    let u =
+    new SpeechSynthesisUtterance(
+        "Hello world"
+    );
+
+    u.lang="en-US";
+
+    speechSynthesis.speak(u);
+}
+</script>
+
+</body>
+</html>
