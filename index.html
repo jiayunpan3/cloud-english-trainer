@@ -160,7 +160,34 @@ Speed:
 
 </div>
 
+<button onclick="testVoice()">
+Test Voice
+</button>
+
 <script>
+window.speechSynthesis.onvoiceschanged =
+function(){
+
+    console.log(
+       speechSynthesis.getVoices()
+    );
+
+};
+
+function testVoice(){
+
+    speechSynthesis.cancel();
+
+    let u =
+      new SpeechSynthesisUtterance(
+      "Hello Karrie"
+      );
+
+    u.lang="en-US";
+
+    speechSynthesis.speak(u);
+
+}
 
 const vocab = [
 {
@@ -1404,84 +1431,70 @@ timers.forEach(clearTimeout);
 timers=[];
 }
 
-function playCurrent(){
+function playCurrent() {
 
-clearTimers();
+    speechSynthesis.cancel();
 
-speechSynthesis.cancel();
+    let item = vocab[current];
 
-let item = vocab[current];
+    let term = new SpeechSynthesisUtterance(item.term);
+    term.lang = "en-US";
 
-let delay = 0;
+    let sentence =
+        new SpeechSynthesisUtterance(item.sentence);
 
-timers.push(
+    sentence.lang = "en-US";
 
-setTimeout(()=>{
+    let zh =
+        new SpeechSynthesisUtterance(item.zh);
 
-speak(
-item.term,
-"en-US"
-);
+    zh.lang = "zh-CN";
 
-},delay)
+    let rate =
+        parseFloat(
+        document.getElementById("speed").value
+        );
 
-);
+    term.rate = rate;
+    sentence.rate = rate;
+    zh.rate = rate;
 
-delay += 3000;
+    term.onend = function(){
 
-timers.push(
+        speechSynthesis.speak(sentence);
 
-setTimeout(()=>{
+    };
 
-speak(
-item.sentence,
-"en-US"
-);
+    sentence.onend = function(){
 
-},delay)
+        speechSynthesis.speak(zh);
 
-);
+    };
 
-delay += 6000;
+    zh.onend = function(){
 
-timers.push(
+        if(playing){
 
-setTimeout(()=>{
+            current++;
 
-speak(
-item.zh,
-"zh-CN"
-);
+            if(current>=vocab.length){
 
-},delay)
+                current=0;
 
-);
+            }
 
-delay += 2500;
+            render();
 
-timers.push(
+            setTimeout(
+                playCurrent,
+                1000
+            );
 
-setTimeout(()=>{
+        }
 
-if(playing){
+    };
 
-current++;
-
-if(
-current >= vocab.length
-){
-current = 0;
-}
-
-render();
-
-playCurrent();
-
-}
-
-},delay)
-
-);
+    speechSynthesis.speak(term);
 
 }
 
