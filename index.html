@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Cloud English Trainer</title>
+
+<style>
+
+body{
+    font-family:Segoe UI,Arial;
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+    background:#f5f7fa;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.term{
+    font-size:36px;
+    font-weight:bold;
+    color:#1565c0;
+    margin-bottom:20px;
+}
+
+.sentence{
+    font-size:24px;
+    line-height:1.6;
+    margin-bottom:20px;
+}
+
+.zh{
+    font-size:28px;
+    color:#2e7d32;
+    font-weight:bold;
+}
+
+.controls{
+    margin-top:20px;
+}
+
+button{
+    padding:10px 16px;
+    margin:5px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.start{
+    background:#1565c0;
+    color:white;
+}
+
+.stop{
+    background:#c62828;
+    color:white;
+}
+
+.nav{
+    background:#2e7d32;
+    color:white;
+}
+
+.speed{
+    margin-top:10px;
+}
+
+#counter{
+    margin-top:15px;
+    color:#666;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Cloud English Listening Trainer</h2>
+
+<div class="card">
+
+<div id="term" class="term"></div>
+
+<div id="sentence" class="sentence"></div>
+
+<div id="zh" class="zh"></div>
+
+<div class="controls">
+
+<button class="start"
+onclick="startAll()">
+▶ Start
+</button>
+
+<button
+onclick="pauseAll()">
+⏸ Pause
+</button>
+
+<button
+onclick="resumeAll()">
+▶ Resume
+</button>
+
+<button class="stop"
+onclick="stopAll()">
+■ Stop
+</button>
+
+<button class="nav"
+onclick="prevWord()">
+⏮ Prev
+</button>
+
+<button class="nav"
+onclick="nextWord()">
+⏭ Next
+</button>
+
+</div>
+
+<div class="speed">
+
+Speed:
+
+<select id="speed">
+
+<option value="0.6">0.6x</option>
+
+<option value="0.8" selected>
+0.8x
+</option>
+
+<option value="1.0">
+1.0x
+</option>
+
+<option value="1.2">
+1.2x
+</option>
+
+</select>
+
+</div>
+
+<div id="counter"></div>
+
+</div>
+
+<script>
+
+const vocab = [
+{
+term:"Availability Zone",
+sentence:"The workload will be deployed across two Availability Zones.",
+zh:"可用区"
+},
+
+{
+term:"Subnet",
+sentence:"The production environment is hosted in a dedicated subnet.",
+zh:"子网"
+},
+
+{
+term:"Public Network",
+sentence:"The application can be accessed through the public network.",
+zh:"公网"
+},
+
+{
+term:"Bandwidth",
+sentence:"Additional bandwidth can be provisioned based on business requirements.",
+zh:"带宽"
+},
+
+{
+term:"Maximum Bandwidth",
+sentence:"The service supports up to ten gigabits of maximum bandwidth.",
+zh:"最大带宽"
+},
+
+{
+term:"NICs",
+sentence:"Multiple NICs are required for network segregation.",
+zh:"网卡"
+},
+
+{
+term:"Backbone",
+sentence:"Traffic is transmitted through the backbone network.",
+zh:"骨干网络"
+},
+
+{
+term:"Tenant",
+sentence:"Each tenant has isolated resources and permissions.",
+zh:"租户"
+},
+
+{
+term:"Cloud Provisioning",
+sentence:"Cloud provisioning can be completed within a few minutes.",
+zh:"云资源开通"
+},
+
+{
+term:"Rapid Elasticity",
+sentence:"The platform supports rapid elasticity during peak traffic periods.",
+zh:"快速弹性扩展"
+},
+
+{
+term:"ARM-based CCE Cluster",
+sentence:"The application will be deployed on an ARM-based CCE cluster.",
+zh:"ARM架构CCE集群"
+},
+
+{
+term:"Operating System Template",
+sentence:"Users can choose different operating system templates during provisioning.",
+zh:"操作系统模板"
+},
+
+{
+term:"OS Images",
+sentence:"The platform provides a range of preconfigured OS images.",
+zh:"操作系统镜像"
+},
+
+{
+term:"Computing Resources",
+sentence:"Computing resources can be requested on demand.",
+zh:"计算资源"
+},
+
+{
+term:"Provision",
+sentence:"The system can provision resources automatically after approval.",
+zh:"提供资源"
+},
+
+{
+term:"Natural Language Query",
+sentence:"Users can search data using natural language without writing SQL.",
+zh:"自然语言查询"
+},
+
+{
+term:"Key Performance Indicator",
+sentence:"Latency is one of the key performance indicators for this solution.",
+zh:"关键绩效指标"
+},
+
+{
+term:"AI Application",
+sentence:"The department plans to develop a new AI application next year.",
+zh:"AI应用"
+},
+
+{
+term:"Concurrent Users",
+sentence:"The platform supports up to five thousand concurrent users.",
+zh:"并发用户"
+},
+
+{
+term:"Input Sequence Length",
+sentence:"The model supports an input sequence length of up to one hundred and twenty-eight thousand tokens.",
+zh:"输入序列长度"
+},
+
+{
+term:"First Token Latency",
+sentence:"The average first token latency is less than five hundred milliseconds.",
+zh:"首Token延迟"
+},
+
+{
+term:"Output Token Latency",
+sentence:"Output token latency directly affects the user experience.",
+zh:"输出Token延迟"
+},
+
+{
+term:"Model Data Type",
+sentence:"Different model data types have different hardware requirements.",
+zh:"模型数据类型"
+},
+
+{
+term:"Service Scenario",
+sentence:"The proposed model was selected based on the service scenario.",
+zh:"服务场景"
+},
+
+{
+term:"Priorities",
+sentence:"The priorities of the AI models should be defined before deployment.",
+zh:"优先级"
+},
+
+{
+term:"Security Group",
+sentence:"The Security Group blocks all inbound traffic by default.",
+zh:"安全组"
+},
+
+{
+term:"Access Control List",
+sentence:"The ACL restricts unauthorised network access.",
+zh:"访问控制列表"
+},
+
+{
+term:"IP Whitelisting",
+sentence:"Please whitelist our public IP address before testing.",
+zh:"IP白名单"
+},
+
+{
+term:"Vulnerability",
+sentence:"All critical vulnerabilities must be remediated before go-live.",
+zh:"漏洞"
+},
+
+{
+term:"Patching",
+sentence:"Monthly patching is required to maintain compliance.",
+zh:"补丁更新"
+},
+
+{
+term:"Encrypted",
+sentence:"All customer data is encrypted at rest and in transit.",
+zh:"已加密"
+},
+
+{
+term:"Data-at-Rest",
+sentence:"Data-at-rest is encrypted using AES-256 encryption.",
+zh:"静态数据"
+},
+
+{
+term:"Data-in-Transit",
+sentence:"TLS is used to protect data-in-transit.",
+zh:"传输中数据"
+},
+
+{
+term:"Security Assurance",
+sentence:"Security assurance services are included in the managed offering.",
+zh:"安全保障"
+},
+
+{
+term:"Compliance Assurance",
+sentence:"The platform provides compliance assurance for government workloads.",
+zh:"合规保障"
+},
+
+{
+term:"Active WAF",
+sentence:"The Active WAF can automatically block malicious traffic.",
+zh:"主动WAF"
+},
+
+{
+term:"OWASP Top 10",
+sentence:"The application has been assessed against the OWASP Top 10 risks.",
+zh:"OWASP十大风险"
+},
+
+{
+term:"Endpoint Protection",
+sentence:"Endpoint protection should be enabled on all virtual machines.",
+zh:"终端防护"
+},
+
+{
+term:"Failover",
+sentence:"Automatic failover will be triggered when the primary site becomes unavailable.",
+zh:"故障切换"
+},
+
+{
+term:"Recovery Point Objective",
+sentence:"The customer requires an RPO of no more than five minutes.",
+zh:"恢复点目标"
+},
+
+{
+term:"Disaster Recovery",
+sentence:"The customer requires a cross-site disaster recovery solution.",
+zh:"灾难恢复"
+},
+
+{
+term:"Dual-active Mode",
+sentence:"The platform operates in dual-active mode across two sites.",
+zh:"双活模式"
+},
+
+{
+term:"Replicated",
+sentence:"Data is continuously replicated to the secondary site.",
+zh:"复制同步"
+},
+
+{
+term:"Global Site",
+sentence:"Applications are deployed across multiple global sites.",
+zh:"全球站点"
+},
+
+{
+term:"Arbitration",
+sentence:"An arbitration node is required to avoid split-brain scenarios.",
+zh:"仲裁"
+},
+
+{
+term:"Downtime",
+sentence:"The migration is expected to be completed with minimal downtime.",
+zh:"停机时间"
+},
+
+{
+term:"Promote Standby Site",
+sentence:"The standby site can be promoted during a disaster event.",
+zh:"提升备站"
+},
+
+{
+term:"Directorate",
+sentence:"The proposal requires approval from the Directorate.",
+zh:"首长级人员"
+},
+
+{
+term:"Deputy Commissioner",
+sentence:"The project update will be presented to the Deputy Commissioner next week.",
+zh:"副专员"
+},
+
+{
+term:"Assistant Commissioner",
+sentence:"The budget was endorsed by the Assistant Commissioner.",
+zh:"助理专员"
+},
+
+{
+term:"HKO",
+sentence:"The HKO is one of the key stakeholders in this initiative.",
+zh:"香港天文台"
+},
+
+{
+term:"B and Ds",
+sentence:"The solution is designed for multiple B and Ds.",
+zh:"决策局及部门"
+},
+
+{
+term:"Policies and Guidelines",
+sentence:"The implementation must comply with all government policies and guidelines.",
+zh:"政策及指引"
+},
+
+{
+term:"Security Regulation",
+sentence:"The platform complies with government security regulations.",
+zh:"安全法规"
+},
+
+{
+term:"Conformance",
+sentence:"The solution demonstrates conformance with government requirements.",
+zh:"符合要求"
+},
+
+{
+term:"Object Storage",
+sentence:"Backup files are stored in the object storage service.",
+zh:"对象存储"
+},
+
+{
+term:"Disk Space",
+sentence:"Additional disk space can be allocated without service interruption.",
+zh:"磁盘空间"
+},
+
+{
+term:"Disk Storage",
+sentence:"The application requires at least two terabytes of disk storage.",
+zh:"磁盘存储"
+},
+
+{
+term:"Disk I/O",
+sentence:"Disk I O performance is a key factor for database workloads.",
+zh:"磁盘输入输出"
+},
+
+{
+term:"Lustre",
+sentence:"Lustre is recommended for high performance computing workloads.",
+zh:"Lustre文件系统"
+},
+
+{
+term:"Veeam",
+sentence:"Veeam is used to provide backup and recovery capabilities.",
+zh:"Veeam备份"
+},
+
+{
+term:"MySQL Compatible Database",
+sentence:"The service provides a MySQL compatible database engine.",
+zh:"兼容MySQL数据库"
+},
+
+{
+term:"Instances",
+sentence:"Additional database instances can be created on demand.",
+zh:"实例"
+},
+
+{
+term:"Repository",
+sentence:"Application images are stored in the central repository.",
+zh:"仓库"
+},
+
+{
+term:"Centralised Logging",
+sentence:"All logs are collected through a centralised logging platform.",
+zh:"集中日志管理"
+},
+
+{
+term:"System Performance Monitoring",
+sentence:"System performance monitoring is available through the dashboard.",
+zh:"系统性能监控"
+},
+
+{
+term:"Application Monitoring",
+sentence:"Application monitoring helps identify performance bottlenecks.",
+zh:"应用监控"
+},
+
+{
+term:"Operation Services",
+sentence:"Operation services are provided on a twenty four by seven basis.",
+zh:"运维服务"
+},
+
+{
+term:"Round the Clock",
+sentence:"Round the clock support is available for critical systems.",
+zh:"全天候"
+},
+
+{
+term:"Notification",
+sentence:"Email notifications will be sent when alerts are triggered.",
+zh:"通知"
+},
+
+{
+term:"Asynchronous",
+sentence:"The integration between both systems is asynchronous.",
+zh:"异步"
+},
+
+{
+term:"Hosting",
+sentence:"The hosting service includes infrastructure and platform management.",
+zh:"托管"
+},
+
+{
+term:"Maintenance",
+sentence:"Regular maintenance windows will be scheduled in advance.",
+zh:"维护"
+},
+
+{
+term:"Deliverables",
+sentence:"All project deliverables must be submitted before acceptance testing.",
+zh:"交付物"
+},
+
+{
+term:"Implementation",
+sentence:"The implementation phase is expected to begin next quarter.",
+zh:"实施"
+},
+
+{
+term:"Subscription",
+sentence:"The solution is offered through an annual subscription model.",
+zh:"订阅"
+},
+
+{
+term:"Procurement",
+sentence:"The procurement process is expected to take four weeks.",
+zh:"采购"
+},
+
+{
+term:"Procurement Process",
+sentence:"The procurement process must comply with government procedures.",
+zh:"采购流程"
+},
+
+{
+term:"Acquisition",
+sentence:"The acquisition of new resources requires budget approval.",
+zh:"采购获取"
+},
+
+{
+term:"Benchmark",
+sentence:"Benchmark testing was conducted before the final recommendation.",
+zh:"基准测试"
+},
+
+{
+term:"Cost Benefit Analysis",
+sentence:"A cost benefit analysis will be included in the proposal.",
+zh:"成本效益分析"
+},
+
+{
+term:"Feasibility Assessment",
+sentence:"A feasibility assessment is required before project approval.",
+zh:"可行性评估"
+},
+
+{
+term:"Feasibility Study",
+sentence:"The feasibility study will be completed this month.",
+zh:"可行性研究"
+},
+
+{
+term:"Pilot Recommendations",
+sentence:"The pilot recommendations will be reviewed by the steering committee.",
+zh:"试点建议"
+},
+
+{
+term:"Contract Term",
+sentence:"The contract term is three years with an optional extension.",
+zh:"合同期限"
+},
+
+{
+term:"Contract Extension",
+sentence:"The customer is considering a one year contract extension.",
+zh:"合同延期"
+},
+
+{
+term:"Renewal Period",
+sentence:"The renewal period begins ninety days before expiry.",
+zh:"续约期"
+},
+
+{
+term:"Expiry",
+sentence:"The current contract will reach expiry next March.",
+zh:"到期"
+},
+
+{
+term:"Service Assurance",
+sentence:"Service assurance is included as part of the managed service.",
+zh:"服务保障"
+},
+
+{
+term:"Compliance Assurance",
+sentence:"Compliance assurance is required for all government workloads.",
+zh:"合规保障"
+},
+
+{
+term:"Advisory",
+sentence:"Our advisory team can assist with cloud adoption planning.",
+zh:"咨询服务"
+},
+
+{
+term:"Reference",
+sentence:"Several customer references are available upon request.",
+zh:"参考案例"
+},
+
+{
+term:"Customisation",
+sentence:"Additional customisation can be implemented based on requirements.",
+zh:"定制开发"
+},
+
+{
+term:"Interoperable",
+sentence:"The solution is interoperable with existing government systems.",
+zh:"互操作性"
+},
+
+{
+term:"Risk Reduction",
+sentence:"Automation helps improve efficiency and achieve risk reduction.",
+zh:"风险降低"
+},
+
+{
+term:"Pain Points",
+sentence:"The workshop is intended to identify customer pain points.",
+zh:"痛点"
+},
+
+{
+term:"Engagement",
+sentence:"Customer engagement activities will continue throughout the project.",
+zh:"沟通参与"
+},
+
+{
+term:"Facilitate",
+sentence:"The new platform will facilitate collaboration across departments.",
+zh:"促进"
+},
+
+{
+term:"Enhancements",
+sentence:"Additional enhancements will be delivered in the next release.",
+zh:"增强功能"
+},
+
+{
+term:"Promotion",
+sentence:"The new service offering will be promoted to all departments.",
+zh:"推广"
+},
+
+{
+term:"Revamp",
+sentence:"The customer plans to revamp the existing platform next year.",
+zh:"重构改造"
+},
+
+{
+term:"Procedure",
+sentence:"All activities must follow the approved operational procedures.",
+zh:"流程"
+},
+
+{
+term:"Governance",
+sentence:"Strong governance is required for large scale cloud projects.",
+zh:"治理"
+},
+
+{
+term:"Consent",
+sentence:"User consent must be obtained before processing personal data.",
+zh:"同意"
+},
+
+{
+term:"Confidential",
+sentence:"The information contained in this document is confidential.",
+zh:"机密"
+},
+
+{
+term:"Compliant",
+sentence:"The solution is fully compliant with government requirements.",
+zh:"合规"
+},
+
+{
+term:"Full Compliance",
+sentence:"Full compliance is required before production deployment.",
+zh:"完全合规"
+},
+
+{
+term:"Dual Network",
+sentence:"The solution uses a dual network architecture for redundancy.",
+zh:"双网络"
+},
+
+{
+term:"Traffic",
+sentence:"Network traffic increased significantly during peak hours.",
+zh:"流量"
+},
+
+{
+term:"Elastic IP",
+sentence:"An Elastic IP has been assigned to the public facing service.",
+zh:"弹性IP"
+},
+
+{
+term:"Bastion Host",
+sentence:"Administrators access production servers through the bastion host.",
+zh:"堡垒机"
+},
+
+{
+term:"Host",
+sentence:"The virtual machines are running on dedicated hosts.",
+zh:"主机"
+},
+
+{
+term:"Hypervisor",
+sentence:"The hypervisor manages all virtual machine resources.",
+zh:"虚拟机管理程序"
+},
+
+{
+term:"Scale Up",
+sentence:"The VM can be scaled up to meet higher performance requirements.",
+zh:"纵向扩容"
+},
+
+{
+term:"Scale Down",
+sentence:"Resources can be scaled down during non peak periods.",
+zh:"缩容"
+},
+
+{
+term:"Scale Out",
+sentence:"The application can scale out automatically based on workload demand.",
+zh:"横向扩容"
+},
+
+{
+term:"Heavy Workload",
+sentence:"The database is designed to support heavy workloads.",
+zh:"高负载"
+},
+
+{
+term:"Availability",
+sentence:"The platform provides high availability across multiple zones.",
+zh:"高可用性"
+},
+
+{
+term:"Environment Experience",
+sentence:"The team has extensive experience managing enterprise environments.",
+zh:"环境经验"
+},
+
+{
+term:"Build",
+sentence:"A new build will be deployed to the testing environment this week.",
+zh:"构建"
+},
+
+{
+term:"Ubuntu",
+sentence:"Ubuntu is the preferred operating system for this deployment.",
+zh:"Ubuntu"
+},
+
+{
+term:"Linux",
+sentence:"The application is certified to run on Linux systems.",
+zh:"Linux"
+},
+
+{
+term:"Device",
+sentence:"The device must be registered before accessing the platform.",
+zh:"设备"
+},
+
+{
+term:"Images",
+sentence:"The latest VM images are available in the image repository.",
+zh:"镜像"
+},
+
+{
+term:"Compatible",
+sentence:"The solution is compatible with existing infrastructure.",
+zh:"兼容"
+},
+
+{
+term:"Flexible",
+sentence:"The architecture is flexible enough to support future expansion.",
+zh:"灵活"
+},
+
+{
+term:"Feature",
+sentence:"This feature will be available in the next release.",
+zh:"功能特性"
+},
+
+{
+term:"Function",
+sentence:"This function is used to automate resource provisioning.",
+zh:"功能"
+},
+
+{
+term:"Compute Resources",
+sentence:"Additional compute resources can be provisioned when required.",
+zh:"计算资源"
+},
+
+{
+term:"Self Service Portal",
+sentence:"Users can request resources through the self service portal.",
+zh:"自助门户"
+},
+
+{
+term:"Interchange Service",
+sentence:"The Interchange Service enables secure data exchange between systems.",
+zh:"互连服务"
+},
+
+{
+term:"Platform",
+sentence:"The platform supports both cloud native and traditional workloads.",
+zh:"平台"
+},
+
+{
+term:"Infrastructure",
+sentence:"The infrastructure is designed to meet government requirements.",
+zh:"基础设施"
+},
+
+{
+term:"Repository",
+sentence:"Source code and images are stored in the central repository.",
+zh:"仓库"
+},
+
+{
+term:"Integrate",
+sentence:"The new system will integrate with existing government platforms.",
+zh:"整合"
+},
+
+{
+term:"Deployment",
+sentence:"The deployment is scheduled for next weekend.",
+zh:"部署"
+},
+
+{
+term:"Offline",
+sentence:"The system can continue operating even when offline.",
+zh:"离线"
+},
+
+{
+term:"Perform",
+sentence:"The platform performs well under high workloads.",
+zh:"执行"
+},
+
+{
+term:"AO",
+sentence:"The proposal will be reviewed by the Administrative Officer.",
+zh:"政务主任"
+},
+
+{
+term:"EO",
+sentence:"The Executive Officer will coordinate the procurement process.",
+zh:"行政主任"
+},
+
+{
+term:"Chief Superintendent",
+sentence:"The project update was presented to the Chief Superintendent.",
+zh:"总警司"
+},
+
+{
+term:"Senior Superintendent",
+sentence:"The budget proposal is awaiting approval from the Senior Superintendent.",
+zh:"高级警司"
+},
+
+{
+term:"Assistant Superintendent",
+sentence:"The implementation plan was endorsed by the Assistant Superintendent.",
+zh:"警司"
+},
+
+{
+term:"Directorate",
+sentence:"The final recommendation will be submitted to the Directorate.",
+zh:"首长级人员"
+},
+
+{
+term:"Deputy Commissioner",
+sentence:"The project status will be reported to the Deputy Commissioner.",
+zh:"副专员"
+},
+
+{
+term:"Assistant Commissioner",
+sentence:"The funding request was approved by the Assistant Commissioner.",
+zh:"助理专员"
+},
+
+{
+term:"HKO",
+sentence:"The HKO is one of the participating departments in this initiative.",
+zh:"香港天文台"
+},
+
+{
+term:"B and Ds",
+sentence:"The platform is intended to serve multiple B and Ds.",
+zh:"决策局及部门"
+},
+
+{
+term:"Latency",
+sentence:"Low latency is a key requirement for interactive AI applications.",
+zh:"延迟"
+},
+
+{
+term:"Model Priorities",
+sentence:"Model priorities should be defined according to business requirements.",
+zh:"模型优先级"
+},
+
+{
+term:"Performance Requirements",
+sentence:"The proposed solution meets the performance requirements specified by the customer.",
+zh:"性能要求"
+},
+
+{
+term:"Choices of Operating System Template",
+sentence:"Users can select from multiple operating system templates.",
+zh:"操作系统模板选择"
+},
+
+{
+term:"On Demand Computing Resources Acquisition",
+sentence:"The platform supports on demand acquisition of computing resources.",
+zh:"按需获取计算资源"
+},
+
+{
+term:"Charge the Usage",
+sentence:"Customers are charged based on actual resource usage.",
+zh:"按使用量收费"
+},
+
+{
+term:"Dynamic",
+sentence:"Resources can be allocated dynamically according to workload demand.",
+zh:"动态"
+},
+
+{
+term:"Isolation",
+sentence:"Resource isolation is enforced between different tenants.",
+zh:"隔离"
+},
+
+{
+term:"SOC",
+sentence:"Security incidents are monitored through the central SOC.",
+zh:"安全运营中心"
+},
+
+{
+term:"Statement of Compliance",
+sentence:"A Statement of Compliance will be provided upon request.",
+zh:"合规声明"
+},
+
+{
+term:"NoSQL Database",
+sentence:"The application uses a NoSQL database for scalability.",
+zh:"NoSQL数据库"
+},
+
+{
+term:"MongoDB",
+sentence:"MongoDB is used to store unstructured application data.",
+zh:"MongoDB"
+},
+
+{
+term:"Layer 7 Attack",
+sentence:"The WAF can detect and block Layer 7 attacks.",
+zh:"七层攻击"
+},
+
+{
+term:"CC Attack",
+sentence:"Additional protection is required against CC attacks.",
+zh:"CC攻击"
+},
+
+{
+term:"WAF",
+sentence:"The WAF protects the application from common web threats.",
+zh:"Web应用防火墙"
+},
+
+{
+term:"Encryption Protection",
+sentence:"Encryption protection is enabled for sensitive records.",
+zh:"加密保护"
+},
+
+{
+term:"Endpoint Protection",
+sentence:"Endpoint protection is mandatory for all managed devices.",
+zh:"终端防护"
+},
+
+{
+term:"Whitelist an IP",
+sentence:"Please whitelist our IP address before connectivity testing.",
+zh:"将IP加入白名单"
+},
+
+{
+term:"First Party Vendor",
+sentence:"The solution is delivered directly by the first party vendor.",
+zh:"原厂供应商"
+},
+
+{
+term:"In House",
+sentence:"The platform was developed and maintained in house.",
+zh:"内部开发"
+},
+
+{
+term:"Dual",
+sentence:"The system supports dual data centres for redundancy.",
+zh:"双重"
+},
+
+{
+term:"In Sync",
+sentence:"Both environments must remain in sync during migration.",
+zh:"同步"
+},
+
+{
+term:"Reference Architecture",
+sentence:"The solution follows the recommended reference architecture.",
+zh:"参考架构"
+},
+
+{
+term:"Roadmap",
+sentence:"The product roadmap includes AI capabilities in the next release.",
+zh:"路线图"
+},
+
+{
+term:"Chips",
+sentence:"The latest AI chips provide significantly better performance.",
+zh:"芯片"
+},
+
+{
+term:"Flexible",
+sentence:"The proposed solution offers a highly flexible deployment model.",
+zh:"灵活"
+},
+
+{
+term:"Available",
+sentence:"The service is available twenty four hours a day.",
+zh:"可用"
+},
+
+{
+term:"Recommended",
+sentence:"This configuration is recommended for production environments.",
+zh:"建议"
+},
+
+{
+term:"Initially",
+sentence:"The service will initially be deployed in a single region.",
+zh:"初始阶段"
+},
+
+{
+term:"Setup",
+sentence:"The initial setup can be completed within one business day.",
+zh:"配置"
+},
+
+{
+term:"Catalogue",
+sentence:"The service catalogue lists all available cloud offerings.",
+zh:"服务目录"
+},
+
+{
+term:"Efficiency",
+sentence:"Automation can significantly improve operational efficiency.",
+zh:"效率"
+},
+
+{
+term:"Effectiveness",
+sentence:"The effectiveness of the solution will be reviewed after deployment.",
+zh:"有效性"
+},
+
+{
+term:"Foster",
+sentence:"The initiative aims to foster collaboration across departments.",
+zh:"促进"
+},
+
+{
+term:"Compete",
+sentence:"Local service providers compete for the same opportunities.",
+zh:"竞争"
+},
+
+{
+term:"Competitive",
+sentence:"The proposed pricing is highly competitive.",
+zh:"有竞争力"
+},
+
+{
+term:"Profits",
+sentence:"The investment is expected to improve long term profits.",
+zh:"利润"
+},
+
+{
+term:"Profits Tax",
+sentence:"The financial assessment includes profits tax considerations.",
+zh:"利得税"
+},
+
+{
+term:"Thrives",
+sentence:"The local technology ecosystem continues to thrive.",
+zh:"蓬勃发展"
+},
+
+{
+term:"Summit",
+sentence:"The latest cloud strategy was announced at the summit.",
+zh:"峰会"
+},
+
+{
+term:"Talent Engage",
+sentence:"The Talent Engage programme supports technology professionals.",
+zh:"人才计划"
+},
+
+{
+term:"Promulgated",
+sentence:"The new policy was promulgated earlier this year.",
+zh:"颁布"
+},
+
+{
+term:"Access",
+sentence:"Access to production systems is strictly controlled.",
+zh:"访问"
+},
+
+{
+term:"Restrict",
+sentence:"Additional controls are required to restrict administrative access.",
+zh:"限制"
+},
+
+{
+term:"Certain",
+sentence:"Certain workloads require higher levels of protection.",
+zh:"特定"
+},
+
+{
+term:"Elements",
+sentence:"All solution elements must be documented before deployment.",
+zh:"要素"
+},
+
+{
+term:"Category",
+sentence:"Each service is assigned to the appropriate category.",
+zh:"类别"
+},
+
+{
+term:"Flavor",
+sentence:"Users can select the required VM flavor during provisioning.",
+zh:"规格"
+},
+
+{
+term:"Abbreviation",
+sentence:"Please avoid using abbreviations in customer facing documents.",
+zh:"缩写"
+},
+
+{
+term:"Notification",
+sentence:"Users will receive a notification when the task is completed.",
+zh:"通知"
+}
+
+
+];
+
+
+let current = 0;
+
+let playing = false;
+
+let timers = [];
+
+function render(){
+
+const item = vocab[current];
+
+document.getElementById("term")
+.innerText = item.term;
+
+document.getElementById("sentence")
+.innerText = item.sentence;
+
+document.getElementById("zh")
+.innerText = item.zh;
+
+document.getElementById("counter")
+.innerText =
+(current + 1)
++ " / "
++ vocab.length;
+}
+
+function speak(text,lang){
+
+let utter =
+new SpeechSynthesisUtterance(text);
+
+utter.lang = lang;
+
+utter.rate =
+parseFloat(
+document.getElementById("speed").value
+);
+
+speechSynthesis.speak(utter);
+
+}
+
+function clearTimers(){
+
+timers.forEach(clearTimeout);
+
+timers=[];
+}
+
+function playCurrent(){
+
+clearTimers();
+
+speechSynthesis.cancel();
+
+let item = vocab[current];
+
+let delay = 0;
+
+timers.push(
+
+setTimeout(()=>{
+
+speak(
+item.term,
+"en-US"
+);
+
+},delay)
+
+);
+
+delay += 3000;
+
+timers.push(
+
+setTimeout(()=>{
+
+speak(
+item.sentence,
+"en-US"
+);
+
+},delay)
+
+);
+
+delay += 6000;
+
+timers.push(
+
+setTimeout(()=>{
+
+speak(
+item.zh,
+"zh-CN"
+);
+
+},delay)
+
+);
+
+delay += 2500;
+
+timers.push(
+
+setTimeout(()=>{
+
+if(playing){
+
+current++;
+
+if(
+current >= vocab.length
+){
+current = 0;
+}
+
+render();
+
+playCurrent();
+
+}
+
+},delay)
+
+);
+
+}
+
+function startAll(){
+
+playing=true;
+
+playCurrent();
+
+}
+
+function pauseAll(){
+
+speechSynthesis.pause();
+
+}
+
+function resumeAll(){
+
+speechSynthesis.resume();
+
+}
+
+function stopAll(){
+
+playing=false;
+
+speechSynthesis.cancel();
+
+clearTimers();
+
+}
+
+function nextWord(){
+
+current++;
+
+if(
+current>=vocab.length
+){
+current=0;
+}
+
+render();
+}
+
+function prevWord(){
+
+current--;
+
+if(
+current<0
+){
+current=
+vocab.length-1;
+}
+
+render();
+}
+
+render();
+
+</script>
+
+</body>
+
+</html>
